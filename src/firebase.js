@@ -1,11 +1,8 @@
-// =============================================
 // Firebase に接続するためのファイル
-// =============================================
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
-// ▼▼▼ Firebaseコンソールに表示された firebaseConfig の中身に置き換える ▼▼▼
 const firebaseConfig = {
   apiKey: 'AIzaSyAG8s2TLU3LsLNhq3BA3AMO47VDeOGc6GI',
   authDomain: 'duo-pomodoro.firebaseapp.com',
@@ -14,7 +11,6 @@ const firebaseConfig = {
   messagingSenderId: '661779256741',
   appId: '1:661779256741:web:8690aa0ba7fbb6133a444c',
 }
-// ▲▲▲ ここまで ▲▲▲
 
 const app = initializeApp(firebaseConfig) // Firebaseに接続する
 export const auth = getAuth(app)          // ログイン機能

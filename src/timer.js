@@ -1,13 +1,10 @@
-// =============================================
 // 勉強時間の「計算」だけを担当するファイル（セッション方式）
-// ---------------------------------------------
 // 画面のこともデータベースのことも知らない、純粋な計算係。
-// =============================================
 
 export const DAY = 24 * 60 * 60 * 1000
 const JST_OFFSET = 9 * 60 * 60 * 1000 // 日本時間は、世界標準時より9時間進んでいる
 
-// 指定した時刻が含まれる日の「日本時間0:00」を返す
+// ある時刻を渡すと、「その日の日本時間の0時0分」の時刻を返す
 export function getJstDayStart(ms) {
   return Math.floor((ms + JST_OFFSET) / DAY) * DAY - JST_OFFSET
 }
@@ -17,14 +14,12 @@ export function getJstDateKey(ms) {
   return new Date(ms + JST_OFFSET).toISOString().slice(0, 10)
 }
 
-// 区間 [start, end] のうち、範囲 [from, to] に入っている長さ
+// 区間 [start, end] のうち、範囲 [from, to] に入っている長さ(その日に勉強した時間)
 function overlap(start, end, from, to) {
   return Math.max(0, Math.min(end, to) - Math.max(start, from))
 }
 
-// ある1人の、指定した日の勉強時間を計算する
-// member  : { status, startedAt }（今の状態。まだ記録が無ければ undefined）
-// sessions: その人の勉強区間の一覧 [{ start, end }, ...]
+// 1人分の「その日の勉強時間」を合計する
 export function getStudyMsForDay(member, sessions, dayStart, now) {
   const dayEnd = dayStart + DAY
   let total = 0

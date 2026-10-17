@@ -1,6 +1,4 @@
-// =============================================
 // 勉強の開始・休憩の書き込みと、2人の状態の見張り
-// =============================================
 import { doc, collection, query, where, onSnapshot, runTransaction, getDoc, getDocs } from 'firebase/firestore'
 import { db } from './firebase.js'
 import { getJstDateKey } from './timer.js'
@@ -13,20 +11,20 @@ export async function startStudying(code, uid) {
   const dayRef = doc(db, 'rooms', code, 'days', getJstDateKey(now))
 
   await runTransaction(db, async (tx) => {
-    // ① 先に必要なデータをすべて読む
+    //先に必要なデータをすべて読む
     const memberSnap = await tx.get(memberRef)
     const daySnap = await tx.get(dayRef)
     const roomSnap = await tx.get(roomRef)
 
-    // ② すでに勉強中なら何もしない（二重起動の防止）
+    //すでに勉強中なら何もしない（二重起動の防止）
     if (memberSnap.exists() && memberSnap.data().status === 'studying') return
 
-    // ③ 今日最初の勉強なら、今日の目標を固定する（目標のロック）
+    //今日最初の勉強なら、今日の目標を固定する（目標のロック）
     if (!daySnap.exists()) {
       tx.set(dayRef, { goalMs: roomSnap.data().goalMs })
     }
 
-    // ④ 自分の状態を「勉強中」にする
+    //自分の状態を「勉強中」にする
     tx.set(memberRef, { status: 'studying', startedAt: now })
   })
 }

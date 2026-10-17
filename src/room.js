@@ -1,6 +1,4 @@
-// =============================================
 // ルームの作成・参加・見張り（Firestoreとのやりとり）
-// =============================================
 import { doc, runTransaction, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db } from './firebase.js'
 
@@ -22,7 +20,7 @@ export async function createRoom(uid, name, goalMs) {
 
     const created = await runTransaction(db, async (tx) => {
       const snap = await tx.get(ref)
-      if (snap.exists()) return false // 偶然同じコードがあった → 別のコードで作り直す
+      if (snap.exists()) return false // 偶然同じコードがあったら別のコードで作り直す
       tx.set(ref, {
         ownerUid: uid,
         memberIds: [uid],
@@ -67,7 +65,7 @@ export function watchRoom(code, onChange, onError) {
 }
 
 
-// ルームの目標を変更する（作成者だけ。ルールで守られている）
+// ルームの目標を変更する（作成者だけ）
 export async function updateGoal(code, goalMs) {
   await updateDoc(doc(db, 'rooms', code), { goalMs })
 }

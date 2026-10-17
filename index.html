@@ -12,10 +12,10 @@
   </head>
   <body>
     <main class="app">
-      <!-- ===== 読み込み中 ===== -->
+      <!--読み込み中-->
       <p id="screen-loading" class="loading">読み込み中…</p>
 
-      <!-- ===== 入口画面：ルームを作る／参加する ===== -->
+      <!--入口画面：ルームを作る／参加する-->
       <section id="screen-entry" class="screen-entry" hidden>
         <h1 class="title">協力勉強タイマー</h1>
 
@@ -48,7 +48,7 @@
         <p id="entry-message" class="message"></p>
       </section>
 
-      <!-- ===== 待機画面：相手の参加を待つ ===== -->
+      <!--待機画面：相手の参加を待つ-->
       <section id="screen-waiting" class="screen-waiting" hidden>
         <div class="card">
           <h2>相手の参加を待っています…</h2>
@@ -60,9 +60,9 @@
         </div>
       </section>
 
-      <!-- ===== メイン画面 ===== -->
+      <!--メイン画面-->
       <div id="screen-main" class="screen-main" hidden>
-        <!-- 上部：目標の情報と進捗バー -->
+        <!--上部：目標の情報と進捗バー-->
         <section class="goal-area">
           <p class="room-label">ルーム <span id="room-code-main"></span></p>
           <div class="goal-info">
@@ -72,7 +72,7 @@
             <span id="achieved-badge" class="achieved-badge" hidden>ミッション達成</span>
           </div>
 
-          <!-- 目標の変更（作成者だけボタンが出る） -->
+          <!--目標の変更（作成者だけボタンが出る）-->
           <div id="goal-edit" class="goal-edit" hidden>
             <p id="goal-next" class="hint"></p>
             <button id="btn-goal-open" class="small-button">目標を変更</button>
@@ -90,14 +90,14 @@
           </div>
 
           <div class="progress-bar">
-            <!-- 左から伸びる：自分の進捗 -->
+            <!--左から伸びる：自分の進捗-->
             <div class="progress-fill progress-me" id="progress-me">
               <span class="rocket">
                 <img id="rocket-img-me" class="rocket-img" alt="" />
                 <span class="rocket-emoji">🚀</span>
               </span>
             </div>
-            <!-- 右から伸びる：相手の進捗 -->
+            <!--右から伸びる：相手の進捗-->
             <div class="progress-fill progress-partner" id="progress-partner">
               <span class="rocket">
                 <img id="rocket-img-partner" class="rocket-img" alt="" />
@@ -107,9 +107,9 @@
           </div>
         </section>
 
-        <!-- 下部：2人の勉強スペース -->
+        <!--下部：2人の勉強スペース-->
         <section class="study-area">
-          <!-- 左：自分 -->
+          <!--左：自分-->
           <div class="study-space space-me" id="space-me">
             <p class="name" id="name-me">自分</p>
             <div class="illust">
@@ -125,7 +125,7 @@
             </div>
           </div>
 
-          <!-- 右：相手 -->
+          <!--右：相手-->
           <div class="study-space space-partner" id="space-partner">
             <p class="name" id="name-partner">相手</p>
             <div class="illust">
@@ -138,13 +138,13 @@
           </div>
         </section>
 
-        <!-- この端末でルームを離れる（押し間違えないよう、一番下に控えめに） -->
+        <!--この端末でルームを離れる（一番下に表示）-->
         <div class="leave-area">
           <button id="btn-leave" class="small-button secondary">この端末でルームを離れる</button>
         </div>
       </div>
 
-      <!-- ===== 結果画面（達成・未達成で共通） ===== -->
+      <!--結果画面（達成・未達成で共通）-->
       <div id="result-overlay" class="overlay" hidden>
         <div class="result-card">
           <img id="result-img" class="result-img" alt="" />
