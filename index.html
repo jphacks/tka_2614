@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>協力勉強タイマー</title>
+  </head>
+  <body>
+    <main class="app">
+      <!-- ===== 読み込み中 ===== -->
+      <p id="screen-loading" class="loading">読み込み中…</p>
+
+      <!-- ===== 入口画面：ルームを作る／参加する ===== -->
+      <section id="screen-entry" class="screen-entry" hidden>
+        <h1 class="title">協力勉強タイマー</h1>
+
+        <div class="card">
+          <label class="field">
+            あなたの名前
+            <input id="input-name" type="text" maxlength="20" placeholder="例：たろう" />
+          </label>
+        </div>
+
+        <div class="entry-columns">
+          <div class="card">
+            <h2>ルームを作る</h2>
+            <p class="hint">2人で目指す、1日の合計目標</p>
+            <div class="goal-inputs">
+              <input id="input-goal-hours" type="number" min="0" max="24" value="4" /> 時間
+              <input id="input-goal-minutes" type="number" min="0" max="59" value="0" /> 分
+            </div>
+            <button id="btn-create">ルームを作る</button>
+          </div>
+
+          <div class="card">
+            <h2>コードで参加</h2>
+            <p class="hint">相手から聞いた6文字のコード</p>
+            <input id="input-code" type="text" maxlength="6" placeholder="例：AB23CD" />
+            <button id="btn-join">参加する</button>
+          </div>
+        </div>
+
+        <p id="entry-message" class="message"></p>
+      </section>
+
+      <!-- ===== 待機画面：相手の参加を待つ ===== -->
+      <section id="screen-waiting" class="screen-waiting" hidden>
+        <div class="card">
+          <h2>相手の参加を待っています…</h2>
+          <p class="hint">ルームコード</p>
+          <p id="waiting-code" class="room-code"></p>
+          <p class="hint">または、この招待URLを相手に送ってください</p>
+          <input id="invite-url" type="text" readonly />
+          <button id="btn-copy">URLをコピー</button>
+        </div>
+      </section>
+
+      <!-- ===== メイン画面 ===== -->
+      <div id="screen-main" class="screen-main" hidden>
+        <!-- 上部：目標の情報と進捗バー -->
+        <section class="goal-area">
+          <p class="room-label">ルーム <span id="room-code-main"></span></p>
+          <div class="goal-info">
+            <span>目標<strong id="goal-text">4:00</strong></span>
+            <span>合計<strong id="total-text">0:00</strong></span>
+            <span>残り<strong id="remaining-text">4:00</strong></span>
+            <span id="achieved-badge" class="achieved-badge" hidden>🎉 達成！</span>
+          </div>
+
+          <!-- 目標の変更（作成者だけボタンが出る） -->
+          <div id="goal-edit" class="goal-edit" hidden>
+            <p id="goal-next" class="hint"></p>
+            <button id="btn-goal-open" class="small-button">目標を変更</button>
+            <div id="goal-form" class="goal-form" hidden>
+              <div class="goal-inputs">
+                <input id="edit-goal-hours" type="number" min="0" max="24" /> 時間
+                <input id="edit-goal-minutes" type="number" min="0" max="59" /> 分
+              </div>
+              <p id="goal-form-note" class="hint"></p>
+              <div class="buttons">
+                <button id="btn-goal-save" class="small-button">保存</button>
+                <button id="btn-goal-cancel" class="small-button secondary">やめる</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="progress-bar">
+            <!-- 左から伸びる：自分の進捗 -->
+            <div class="progress-fill progress-me" id="progress-me">
+              <span class="rocket">🚀</span>
+            </div>
+            <!-- 右から伸びる：相手の進捗 -->
+            <div class="progress-fill progress-partner" id="progress-partner">
+              <span class="rocket">🚀</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 下部：2人の勉強スペース -->
+        <section class="study-area">
+          <!-- 左：自分 -->
+          <div class="study-space space-me" id="space-me">
+            <p class="name" id="name-me">自分</p>
+            <div class="illust">
+              <img id="img-me" alt="自分の様子" />
+              <span class="illust-placeholder" id="placeholder-me"></span>
+            </div>
+            <p class="time" id="time-me">0:00:00</p>
+            <p class="status" id="status-me">未開始</p>
+            <div class="buttons">
+              <button id="btn-start">勉強開始</button>
+              <button id="btn-pause">休憩</button>
+              <button id="btn-resume">再開</button>
+            </div>
+          </div>
+
+          <!-- 右：相手 -->
+          <div class="study-space space-partner" id="space-partner">
+            <p class="name" id="name-partner">相手</p>
+            <div class="illust">
+              <img id="img-partner" alt="相手の様子" />
+              <span class="illust-placeholder" id="placeholder-partner"></span>
+            </div>
+            <p class="time" id="time-partner">0:00:00</p>
+            <p class="status" id="status-partner">未開始</p>
+            <p class="note">相手のタイマーは操作できません</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== 結果画面（達成・未達成で共通） ===== -->
+      <div id="result-overlay" class="overlay" hidden>
+        <div class="result-card">
+          <img id="result-img" class="result-img" alt="" />
+          <h2 id="result-title"></h2>
+          <p id="result-message" class="result-message"></p>
+          <dl id="result-stats" class="result-stats"></dl>
+          <button id="btn-result-close">閉じる</button>
+        </div>
+      </div>      
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
