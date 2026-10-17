@@ -9,7 +9,7 @@ export const IMAGES = {
   idle: '/images/break.gif',            // 未開始
   studying: '/images/studying.gif',    // 勉強中
   break: '/images/break.gif',          // 休憩中
-  achieved: '/images/achieved.gif',    // 目標達成（STEP 7で使用）
+  achieved: '/images/achieved.png',    // 目標達成（STEP 7で使用）
   failed: '/images/failed.png',        // 目標未達成（STEP 7で使用）
 }
 
