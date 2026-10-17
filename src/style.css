@@ -474,3 +474,31 @@ button.secondary {
   background: var(--bar-bg);
   color: var(--text);
 }
+
+/* ===== ロケット画像（STEP 8-1で追加） ===== */
+/* 回転は「絵文字だけ」にする（画像は最初から右向きなので回さない） */
+.progress-me .rocket {
+  transform: translate(50%, -50%);
+}
+.progress-partner .rocket {
+  transform: translate(-50%, -50%) scaleX(-1); /* 相手側は左右反転 */
+}
+
+.rocket-emoji {
+  display: inline-block;
+  transform: rotate(45deg);
+}
+
+.rocket-img {
+  display: none;
+  height: 48px;      /* ロケット画像の大きさ（ここを変えると大きさが変わる） */
+  width: auto;
+}
+
+/* 画像が読み込めたら、絵文字の代わりに画像を表示 */
+.rocket.has-image .rocket-img {
+  display: block;
+}
+.rocket.has-image .rocket-emoji {
+  display: none;
+}

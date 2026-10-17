@@ -1,5 +1,5 @@
 import './style.css'
-import { IMAGES, STATUS_LABELS, MESSAGES } from './config.js' // ★ MESSAGES を追加
+import { IMAGES, STATUS_LABELS, MESSAGES, ROCKET_IMAGES } from './config.js'
 import { DAY, getJstDayStart, getJstDateKey, getStudyMsForDay, getDisplayStatus } from './timer.js'
 import { ensureSignedIn } from './firebase.js'
 import { createRoom, joinRoom, watchRoom, updateGoal } from './room.js'
@@ -202,6 +202,14 @@ for (const who of ['me', 'partner']) {
   const img = document.getElementById(`img-${who}`)
   img.addEventListener('load', () => img.parentElement.classList.add('has-image'))
   img.addEventListener('error', () => img.parentElement.classList.remove('has-image'))
+}
+
+// ★ ロケット画像：読み込めたら画像、無ければ絵文字のまま
+for (const who of ['me', 'partner']) {
+  const img = document.getElementById(`rocket-img-${who}`)
+  img.addEventListener('load', () => img.parentElement.classList.add('has-image'))
+  img.addEventListener('error', () => img.parentElement.classList.remove('has-image'))
+  img.src = ROCKET_IMAGES[who]
 }
 
 // ★ 結果画面の画像が無いときは、画像の枠ごと隠す

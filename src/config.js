@@ -6,7 +6,7 @@
 // （PNG・JPG・GIF のどれでもOK）
 // =============================================
 export const IMAGES = {
-  idle: '/images/idle.png',            // 未開始
+  idle: '/images/break.gif',            // 未開始
   studying: '/images/studying.gif',    // 勉強中
   break: '/images/break.gif',          // 休憩中
   achieved: '/images/achieved.gif',    // 目標達成（STEP 7で使用）
@@ -25,4 +25,12 @@ export const STATUS_LABELS = {
 export const MESSAGES = {
   achieved: '達成！',
   failed: '失敗',
+}
+
+// ロケット（進捗バーの先頭）
+// ・右向き（→）の画像を用意してください。相手側は自動で左右反転します。
+// ・画像が無いときは、絵文字の 🚀 が表示されます。
+export const ROCKET_IMAGES = {
+  me: '/images/rocket.gif',
+  partner: '/images/rocket.gif',
 }
