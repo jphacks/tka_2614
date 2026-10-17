@@ -5,6 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>協力勉強タイマー</title>
+    <!-- 丸くてやわらかい日本語フォント（Google Fonts） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
   </head>
   <body>
     <main class="app">
@@ -65,7 +69,7 @@
             <span>目標<strong id="goal-text">4:00</strong></span>
             <span>合計<strong id="total-text">0:00</strong></span>
             <span>残り<strong id="remaining-text">4:00</strong></span>
-            <span id="achieved-badge" class="achieved-badge" hidden>🎉 達成！</span>
+            <span id="achieved-badge" class="achieved-badge" hidden>ミッション達成</span>
           </div>
 
           <!-- 目標の変更（作成者だけボタンが出る） -->
@@ -133,6 +137,11 @@
             <p class="note">相手のタイマーは操作できません</p>
           </div>
         </section>
+
+        <!-- この端末でルームを離れる（押し間違えないよう、一番下に控えめに） -->
+        <div class="leave-area">
+          <button id="btn-leave" class="small-button secondary">この端末でルームを離れる</button>
+        </div>
       </div>
 
       <!-- ===== 結果画面（達成・未達成で共通） ===== -->

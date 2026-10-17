@@ -32,5 +32,5 @@ export const MESSAGES = {
 // ・画像が無いときは、絵文字の 🚀 が表示されます。
 export const ROCKET_IMAGES = {
   me: '/images/rocket.gif',
-  partner: '/images/rocket.gif',
+  partner: '/images/rocket.png',
 }

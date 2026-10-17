@@ -1,324 +1,99 @@
-/* ===== 色の設定（ここを変えると全体の色が変わる） ===== */
+/* =============================================
+   宇宙の絵本 デザイン
+   ---------------------------------------------
+   色を変えたいときは、:root の中だけを書き換えればOK
+   ============================================= */
+
 :root {
-  --bg: #1b1f3b;       /* 背景 */
-  --panel: #262b52;    /* 勉強スペースの背景 */
-  --text: #f4f4f8;     /* 文字 */
-  --sub: #a9adc9;      /* 補助の文字 */
-  --me: #4fc3f7;       /* 自分の色（水色） */
-  --partner: #ff8a65;  /* 相手の色（オレンジ） */
-  --bar-bg: #3a3f6b;   /* 進捗バーの空き部分 */
+  --night: #141b3c;      /* 夜空（背景） */
+  --night-2: #1c2452;    /* 窓・パネル */
+  --line: #3a4380;       /* 枠線 */
+  --track: #0f1430;      /* 進捗バーの空き・入力欄 */
+  --paper: #fdf6e3;      /* クリーム色（文字・絵本のページ） */
+  --sub: #b9b6d6;        /* 補助の文字 */
+  --ink: #2a2140;        /* 濃い文字（明るい背景の上） */
+  --shadow: #070a1f;     /* ステッカーの影 */
+  --me: #7cc8f2;         /* 自分：地球の青 */
+  --partner: #f6c445;    /* 相手：月の黄色 */
+  --rocket: #e8513a;     /* ロケットの赤（強調） */
+  --green: #9be7a5;      /* 勉強中 */
 }
 
+/* ===== 土台 ===== */
 * {
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important; /* hidden が付いた部分は必ず隠す */
+}
+
+html {
+  background: var(--night);
+}
+
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, "Yu Gothic UI", "Hiragino Sans", sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% -10%, #2b3577 0%, transparent 60%),
+    linear-gradient(180deg, var(--night) 0%, #0b1029 100%);
+  color: var(--paper);
+  font-family: 'Zen Maru Gothic', system-ui, sans-serif;
+}
+
+/* ===== 星空（2枚の星の層を、ずらしてまたたかせる） ===== */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+
+body::before {
+  background-image:
+    radial-gradient(1.5px 1.5px at 23px 41px, rgba(253, 246, 227, 0.9) 50%, transparent 51%),
+    radial-gradient(1px 1px at 120px 80px, rgba(253, 246, 227, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 170px 150px, rgba(253, 246, 227, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 60px 170px, rgba(253, 246, 227, 0.6) 50%, transparent 51%);
+  background-size: 200px 200px;
+}
+
+body::after {
+  background-image:
+    radial-gradient(2px 2px at 90px 30px, rgba(246, 196, 69, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 250px 120px, rgba(253, 246, 227, 0.8) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 30px 260px, rgba(124, 200, 242, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 200px 280px, rgba(253, 246, 227, 0.6) 50%, transparent 51%);
+  background-size: 310px 310px;
+  animation-delay: -2.5s;
+}
+
+@keyframes twinkle {
+  from { opacity: 0.35; }
+  to   { opacity: 1; }
 }
 
 .app {
+  position: relative;
+  z-index: 1; /* 星空より手前に表示 */
   max-width: 960px;
   margin: 0 auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 28px;
   min-height: 100vh;
 }
 
-/* ===== 上部：目標の情報 ===== */
-.goal-info {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-bottom: 20px;
-  color: var(--sub);
-}
-
-.goal-info strong {
-  margin-left: 6px;
-  font-size: 1.5rem;
-  color: var(--text);
-}
-
-/* ===== 進捗バー ===== */
-.progress-bar {
-  position: relative;      /* 中のバーを、この枠を基準に配置する */
-  height: 36px;
-  margin: 0 20px;          /* ロケットがはみ出しても見えるように余白 */
-  background: var(--bar-bg);
-  border-radius: 18px;
-}
-
-.progress-fill {
-  position: absolute;      /* 枠の中で自由に位置を決める */
-  top: 0;
-  height: 100%;
-  transition: width 0.5s ease;  /* 幅が変わるときに滑らかに動かす */
-}
-
-.progress-me {
-  left: 0;                 /* 左端から伸びる */
-  background: var(--me);
-  border-radius: 18px 0 0 18px;
-}
-
-.progress-partner {
-  right: 0;                /* 右端から伸びる */
-  background: var(--partner);
-  border-radius: 0 18px 18px 0;
-}
-
-/* ロケット：バーの先頭に置く */
-.rocket {
-  position: absolute;
-  top: 50%;
-  font-size: 32px;
-  line-height: 1;
-}
-
-.progress-me .rocket {
-  right: 0;
-  /* 右へ半分ずらして先頭に乗せ、45度回して右向きにする */
-  transform: translate(50%, -50%) rotate(45deg);
-}
-
-.progress-partner .rocket {
-  left: 0;
-  /* 左へ半分ずらし、左右反転させて左向きにする */
-  transform: translate(-50%, -50%) scaleX(-1) rotate(45deg);
-}
-
-/* ===== 下部：2人の勉強スペース ===== */
-.study-area {
-  display: grid;
-  grid-template-columns: 1fr 1fr;  /* 左右に同じ幅で2分割 */
-  gap: 16px;
-}
-
-.study-space {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  background: var(--panel);
-  border-radius: 16px;
-}
-
-.space-me {
-  border-top: 6px solid var(--me);
-}
-
-.space-partner {
-  border-top: 6px solid var(--partner);
-}
-
-.name {
-  margin: 0;
-  font-weight: bold;
-}
-
-/* 画像の仮の枠（後で本物の画像に差し替える） */
-.illust {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border: 2px dashed var(--sub);
-  border-radius: 12px;
-  color: var(--sub);
-  text-align: center;
-}
-
-.time {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: bold;
-  font-variant-numeric: tabular-nums;  /* 数字の幅をそろえて、表示がガタつかないようにする */
-}
-
-.status {
-  margin: 0;
-  color: var(--sub);
-}
-
-.note {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--sub);
-}
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-}
-
-button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 999px;
-  background: var(--me);
-  color: #10213a;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* ===== スマートフォン向け（画面幅600px以下） ===== */
-@media (max-width: 600px) {
-  .goal-info {
-    gap: 12px;
-  }
-  .goal-info strong {
-    font-size: 1.2rem;
-  }
-  .time {
-    font-size: 1.3rem;
-  }
-  button {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-  }
-}
-
-/* ===== 画像の表示（STEP 3-3で追加） ===== */
-.illust {
-  position: relative;
-  overflow: hidden;
-}
-
-.illust img {
-  display: none;            /* 最初は隠しておく */
-  width: 100%;
-  height: 100%;
-  object-fit: contain;      /* 画像の縦横比を保ったまま枠に収める */
-}
-
-.illust-placeholder {
-  white-space: pre-line;    /* 文字の中の改行を、そのまま改行として表示する */
-  font-size: 0.9rem;
-}
-
-/* 画像が読み込めたら：画像を表示して、代わりの文字と点線を消す */
-.illust.has-image img {
-  display: block;
-}
-.illust.has-image .illust-placeholder {
-  display: none;
-}
-.illust.has-image {
-  border-style: none;
-}
-
-/* ===== 状態ごとの色分け ===== */
-.study-space[data-status="studying"] .status {
-  color: #7ee787;           /* 勉強中：緑 */
-  font-weight: bold;
-}
-.study-space[data-status="break"] .status {
-  color: #ffd166;           /* 休憩中：黄 */
-  font-weight: bold;
-}
-.study-space[data-status="break"] .illust {
-  opacity: 0.75;            /* 休憩中は少し落ち着いた見た目に */
-}
-
-/* ===== 押せないボタンは薄く表示 ===== */
-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-/* ===== 画面の切り替え・入口画面・待機画面（STEP 5-3で追加） ===== */
-[hidden] {
-  display: none !important;   /* hidden が付いた画面は必ず隠す */
-}
-
+/* ===== 共通の部品 ===== */
 .loading {
   margin-top: 40vh;
   text-align: center;
   color: var(--sub);
-}
-
-.screen-main {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.screen-entry,
-.screen-waiting {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 640px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.title {
-  margin: 24px 0 8px;
-  text-align: center;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 20px;
-  background: var(--panel);
-  border-radius: 16px;
-}
-
-.card h2 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.entry-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-weight: bold;
-}
-
-input {
-  padding: 10px 12px;
-  border: 2px solid var(--bar-bg);
-  border-radius: 10px;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 1rem;
-}
-
-.goal-inputs {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.goal-inputs input {
-  width: 70px;
-}
-
-#input-code {
-  text-transform: uppercase;   /* 小文字で入力しても大文字で表示 */
-  letter-spacing: 0.2em;
 }
 
 .hint {
@@ -331,59 +106,502 @@ input {
   min-height: 1.5em;
   margin: 0;
   text-align: center;
-  color: #ffd166;
+  font-weight: 700;
+  color: var(--partner);
+}
+
+/* 窓（手描き風に、角ごとに丸みを変える） */
+.card,
+.study-space {
+  background: var(--night-2);
+  border: 3px solid var(--line);
+  border-radius: 30px 24px 32px 22px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+/* ボタン：押すと沈む立体ステッカー */
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 14px;
+  background: var(--partner);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: 0 4px 0 var(--shadow);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--shadow);
+}
+
+button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: translateY(3px);
+}
+
+button.secondary {
+  background: var(--line);
+  color: var(--paper);
+}
+
+.small-button {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+/* 入力欄 */
+input {
+  padding: 10px 12px;
+  border: 3px solid var(--line);
+  border-radius: 12px;
+  background: var(--track);
+  color: var(--paper);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--partner);
+}
+
+/* ===== 入口画面・待機画面 ===== */
+.screen-entry,
+.screen-waiting {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 32px 0 8px;
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: var(--partner);
+  text-shadow: 0 4px 0 var(--shadow);
+}
+
+.entry-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.goal-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.goal-inputs input {
+  width: 72px;
+}
+
+#input-code {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
 }
 
 .room-code {
   margin: 0;
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 2.6rem;
+  font-weight: 900;
   letter-spacing: 0.3em;
   text-align: center;
+  color: var(--partner);
+}
+
+/* ===== メイン画面 ===== */
+.screen-main {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .room-label {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   text-align: center;
   font-size: 0.85rem;
   color: var(--sub);
 }
 
-@media (max-width: 600px) {
-  .entry-columns {
-    grid-template-columns: 1fr;  /* スマホでは縦に並べる */
-  }
+/* 目標・合計・残り：点線で囲んだスタンプ */
+.goal-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
-/* ===== 目標達成の表示（STEP 7-1で追加） ===== */
+.goal-info > span:not(.achieved-badge) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 96px;
+  padding: 6px 14px 8px;
+  border: 2px dashed rgba(253, 246, 227, 0.35);
+  border-radius: 16px;
+  font-size: 0.8rem;
+  color: var(--sub);
+}
+
+.goal-info strong {
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 達成マーク：斜めに押したはんこ */
 .achieved-badge {
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: #ffd166;
-  color: #3a2a00;
-  font-weight: bold;
+  padding: 6px 14px;
+  border: 3px solid var(--rocket);
+  border-radius: 12px;
+  background: rgba(232, 81, 58, 0.1);
+  color: var(--rocket);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  transform: rotate(-8deg);
+  animation: stamp 0.35s ease-out;
 }
 
-/* 達成したら、進捗バーが金色に光る */
+@keyframes stamp {
+  from { transform: rotate(-8deg) scale(1.8); opacity: 0; }
+  to   { transform: rotate(-8deg) scale(1);   opacity: 1; }
+}
+
+/* 目標の変更 */
+.goal-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 22px;
+}
+
+.goal-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--night-2);
+  border: 3px solid var(--line);
+  border-radius: 18px 14px 20px 12px;
+}
+
+/* ===== 進捗バー：地球と月を結ぶ航路 ===== */
+.progress-bar {
+  position: relative;
+  height: 30px;
+  margin: 0 48px; /* 両端の地球と月のための余白 */
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background-color: var(--track);
+  /* 真ん中に点線の航路を描く */
+  background-image: repeating-linear-gradient(90deg, rgba(253, 246, 227, 0.35) 0 10px, transparent 10px 22px);
+  background-size: 100% 2px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 左端の地球と右端の月（CSSだけで描いた惑星） */
+.progress-bar::before,
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 46px;
+  height: 46px;
+  border: 3px solid var(--night);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.progress-bar::before {
+  left: -44px;
+  background:
+    radial-gradient(circle at 30% 62%, #7fc96b 0 18%, transparent 19%),
+    radial-gradient(circle at 66% 34%, #7fc96b 0 13%, transparent 14%),
+    radial-gradient(circle at 35% 30%, #9fe0ff, #3d8fd6 60%, #2a5ea8);
+}
+
+.progress-bar::after {
+  right: -44px;
+  background:
+    radial-gradient(circle at 36% 40%, #d9a634 0 12%, transparent 13%),
+    radial-gradient(circle at 62% 66%, #d9a634 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 28%, #d9a634 0 6%, transparent 7%),
+    var(--partner);
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  /* 色鉛筆で塗ったような斜めの線 */
+  background-image: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.18) 0 8px, transparent 8px 16px);
+  transition: width 0.5s ease;
+}
+
+.progress-me {
+  left: 0;
+  background-color: var(--me);
+  border-radius: 999px 0 0 999px;
+}
+
+.progress-partner {
+  right: 0;
+  background-color: var(--partner);
+  border-radius: 0 999px 999px 0;
+}
+
+/* 達成したら、航路がやさしく光る */
 .progress-bar.achieved {
   animation: glow 1.8s ease-in-out infinite;
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 8px 2px rgba(255, 209, 102, 0.4); }
-  50%      { box-shadow: 0 0 24px 8px rgba(255, 209, 102, 0.9); }
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(253, 246, 227, 0.3); }
+  50%      { box-shadow: 0 0 26px 8px rgba(253, 246, 227, 0.75); }
 }
 
-/* ===== 結果画面 ===== */
+/* ロケット */
+.rocket {
+  position: absolute;
+  top: 50%;
+  z-index: 2; /* 惑星より手前 */
+  line-height: 1;
+}
+
+.progress-me .rocket {
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.progress-partner .rocket {
+  left: 0;
+  transform: translate(-50%, -50%) scaleX(-1); /* 相手側は左右反転 */
+}
+
+.rocket-emoji {
+  display: inline-block;
+  font-size: 32px;
+  transform: rotate(45deg);
+}
+
+.rocket-img {
+  display: none;
+  height: 56px; /* ロケット画像の大きさ */
+  width: auto;
+}
+
+.rocket.has-image .rocket-img {
+  display: block;
+}
+
+.rocket.has-image .rocket-emoji {
+  display: none;
+}
+
+/* ===== 2人の勉強スペース ===== */
+.study-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 10px; /* 名札がはみ出す分の余白 */
+}
+
+.study-space {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 16px 20px;
+}
+
+.space-partner {
+  border-radius: 24px 32px 22px 30px; /* 左右で少し違う丸み */
+}
+
+/* 名札：少し傾けたステッカー */
+.name {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  max-width: 85%;
+  margin: 0;
+  padding: 4px 18px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--me);
+  color: var(--ink);
+  font-weight: 900;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-shadow: 3px 3px 0 var(--shadow);
+  transform: translateX(-50%) rotate(-3deg);
+}
+
+.space-partner .name {
+  background: var(--partner);
+  transform: translateX(-50%) rotate(2deg);
+}
+
+/* イラストの枠 */
+.illust {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 2px dashed rgba(253, 246, 227, 0.3);
+  border-radius: 18px;
+  color: var(--sub);
+  text-align: center;
+}
+
+.illust img {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.illust-placeholder {
+  font-size: 0.85rem;
+  white-space: pre-line;
+}
+
+.illust.has-image {
+  border-style: none;
+}
+
+.illust.has-image img {
+  display: block;
+}
+
+.illust.has-image .illust-placeholder {
+  display: none;
+}
+
+.study-space[data-status="break"] .illust {
+  opacity: 0.8;
+}
+
+.time {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.status {
+  margin: 0;
+  font-weight: 700;
+  color: var(--sub);
+}
+
+.study-space[data-status="studying"] .status {
+  color: var(--green);
+}
+
+/* 勉強中は、状態の前の点が点滅する */
+.study-space[data-status="studying"] .status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.2; }
+}
+
+.study-space[data-status="break"] .status {
+  color: var(--partner);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--sub);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* タイマーのボタンの色分け */
+#btn-start {
+  background: var(--rocket);
+  color: var(--paper);
+}
+
+#btn-pause {
+  background: var(--partner);
+}
+
+#btn-resume {
+  background: var(--me);
+}
+
+/* ===== 結果画面：絵本の1ページ ===== */
 .overlay {
-  position: fixed;          /* 画面全体の上に重ねる */
+  position: fixed;
   inset: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(10, 12, 30, 0.75);
+  background: rgba(7, 10, 31, 0.7);
 }
 
 .result-card {
@@ -393,21 +611,24 @@ input {
   gap: 12px;
   width: 100%;
   max-width: 420px;
-  padding: 24px;
-  background: var(--panel);
-  border-radius: 20px;
+  padding: 26px 24px;
+  border-radius: 28px 20px 30px 22px;
+  background: var(--paper);
+  color: var(--ink);
   text-align: center;
+  box-shadow: 0 8px 0 var(--shadow);
   animation: pop 0.4s ease-out;
 }
 
 @keyframes pop {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
+  from { transform: scale(0.8) rotate(-2deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0);      opacity: 1; }
 }
 
 .result-card h2 {
   margin: 0;
   font-size: 1.6rem;
+  font-weight: 900;
 }
 
 .result-img {
@@ -418,7 +639,7 @@ input {
 
 .result-message {
   margin: 0;
-  color: var(--sub);
+  color: #6b5f86;
 }
 
 .result-stats {
@@ -431,74 +652,91 @@ input {
 
 .result-stats div {
   padding: 8px;
-  background: var(--bg);
-  border-radius: 10px;
+  border: 2px dashed #d6ccb0;
+  border-radius: 12px;
 }
 
 .result-stats dt {
   font-size: 0.8rem;
-  color: var(--sub);
+  color: #7a7090;
 }
 
 .result-stats dd {
   margin: 0;
   font-size: 1.3rem;
-  font-weight: bold;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ===== 目標の変更（STEP 7-3で追加） ===== */
-.goal-edit {
+#btn-result-close {
+  background: var(--rocket);
+  color: var(--paper);
+}
+
+/* ===== スマートフォン向け（画面幅600px以下） ===== */
+@media (max-width: 600px) {
+  .entry-columns {
+    grid-template-columns: 1fr;
+  }
+  .goal-info {
+    gap: 8px;
+  }
+  .goal-info > span:not(.achieved-badge) {
+    min-width: 76px;
+    padding: 4px 8px 6px;
+  }
+  .goal-info strong {
+    font-size: 1.3rem;
+  }
+  .progress-bar {
+    margin: 0 36px;
+  }
+  .progress-bar::before,
+  .progress-bar::after {
+    width: 36px;
+    height: 36px;
+  }
+  .progress-bar::before {
+    left: -34px;
+  }
+  .progress-bar::after {
+    right: -34px;
+  }
+  .rocket-img {
+    height: 44px;
+  }
+  .study-area {
+    gap: 10px;
+  }
+  .study-space {
+    padding: 26px 8px 14px;
+  }
+  .time {
+    font-size: 1.5rem;
+  }
+  button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* 動きを減らす設定の人には、アニメーションを止める */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== 「この端末でルームを離れる」ボタン ===== */
+.leave-area {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin: -8px 0 20px;
+  justify-content: center;
+  padding-bottom: 24px;
 }
 
-.goal-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: var(--panel);
-  border-radius: 12px;
-}
-
-.small-button {
-  padding: 6px 14px;
-  font-size: 0.85rem;
-}
-
-button.secondary {
-  background: var(--bar-bg);
-  color: var(--text);
-}
-
-/* ===== ロケット画像（STEP 8-1で追加） ===== */
-/* 回転は「絵文字だけ」にする（画像は最初から右向きなので回さない） */
-.progress-me .rocket {
-  transform: translate(50%, -50%);
-}
-.progress-partner .rocket {
-  transform: translate(-50%, -50%) scaleX(-1); /* 相手側は左右反転 */
-}
-
-.rocket-emoji {
-  display: inline-block;
-  transform: rotate(45deg);
-}
-
-.rocket-img {
-  display: none;
-  height: 48px;      /* ロケット画像の大きさ（ここを変えると大きさが変わる） */
-  width: auto;
-}
-
-/* 画像が読み込めたら、絵文字の代わりに画像を表示 */
-.rocket.has-image .rocket-img {
-  display: block;
-}
-.rocket.has-image .rocket-emoji {
-  display: none;
+#btn-leave {
+  opacity: 0.75; /* 目立ちすぎないように */
 }

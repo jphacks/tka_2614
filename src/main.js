@@ -127,7 +127,7 @@ function maybeCelebrate(myStudyMs, partnerStudyMs, totalMs, goal) {
 
   showResult({
     type: 'achieved',
-    title: '🎉 目標達成！',
+    title: 'ミッション達成！',
     message: MESSAGES.achieved,
     rows: [
       ['2人の合計', formatHMS(totalMs)],
@@ -554,6 +554,33 @@ document.getElementById('btn-copy').addEventListener('click', async () => {
   const url = document.getElementById('invite-url').value
   await navigator.clipboard.writeText(url)
   document.getElementById('btn-copy').textContent = 'コピーしました！'
+})
+
+// ★ 「この端末でルームを離れる」ボタン
+document.getElementById('btn-leave').addEventListener('click', async () => {
+  const code = currentRoomCode
+  const ok = confirm(
+    `ルーム ${code} を離れて、最初の画面に戻りますか？\n` +
+      '（勉強中の場合は休憩にしてから離れます。記録は消えず、コードを入れればいつでも戻れます）'
+  )
+  if (!ok) return
+
+  // 勉強中なら、先に休憩にする（離れた後に時間が増え続けないように）
+  const myMember = members[currentUser.uid]
+  if (myMember && myMember.status === 'studying') {
+    try {
+      await stopStudying(code, currentUser.uid)
+    } catch (error) {
+      console.error(error)
+      alert('休憩にできなかったため、離れるのを中止しました。通信状態を確認してください')
+      return
+    }
+  }
+
+  // 開いていたフォームや結果画面を閉じてから、入口画面へ
+  document.getElementById('result-overlay').hidden = true
+  closeGoalForm()
+  backToEntry(`ルーム ${code} を離れました。コードを入れれば、いつでも戻れます`)
 })
 
 async function start() {
