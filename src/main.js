@@ -5,21 +5,21 @@ import { ensureSignedIn } from './firebase.js'
 import { createRoom, joinRoom, watchRoom, updateGoal } from './room.js'
 import { startStudying, stopStudying, watchMembers, watchSessions, watchDay, lockDayGoal, fetchDayData } from './sync.js'
 
-// ===== 時間の単位 =====
+//時間の単位
 const SECOND = 1000
 const MINUTE = 60 * SECOND
 const HOUR = 60 * MINUTE
 
-// ===== アプリの状態（すべてここにまとめる） =====
+//アプリの状態（すべてここにまとめる）
 const ROOM_KEY = 'duo-pomodoro-room' // 参加中のルームコードを覚えておく場所
 let currentUser = null               // ログイン中のユーザー（この端末）
 let currentRoomCode = null           // 今いるルームのコード
 let partnerId = null                 // 相手のID
-let myName = ''                      // ★ 自分の名前
-let partnerName = ''                 // ★ 相手の名前
-let roomGoalMs = 4 * HOUR            // ★ ルームに設定されている目標
-let todayGoalMs = null               // ★ 今日固定された目標（days/今日）。まだ無ければ null
-let todayKey = null                  // ★ 同期している日付（例：2026-10-17）
+let myName = ''                      // 自分の名前
+let partnerName = ''                 // 相手の名前
+let roomGoalMs = 4 * HOUR            // ルームに設定されている目標
+let todayGoalMs = null               // 今日固定された目標（days/今日）。まだ無ければ null
+let todayKey = null                  // 同期している日付（例：2026-10-17）
 let members = {}                     // 2人の今の状態 { ID: { status, startedAt } }
 let sessions = []                    // 勉強した区間の一覧 [{ uid, start, end }, ...]
 let timerBusy = false                // ボタン操作の通信中かどうか
@@ -31,17 +31,17 @@ let lockRequestedFor = null          // 目標の固定を頼んだ日付（同�
 let resultCheckedFor = null          // 前日の結果を確認した「ルーム-日付」（重複を防ぐ）
 let isOwner = false                  // 自分がルームの作成者かどうか
 
-// ★ 今日の目標：固定されていればそれを、まだならルームの目標を使う
+//今日の目標：固定されていればそれを、まだならルームの目標を使う
 function getGoalMs() {
   return todayGoalMs ?? roomGoalMs
 }
 
-// ===== 数字を2桁にそろえる =====
+// 数字を2桁にそろえる
 function pad(number) {
   return String(number).padStart(2, '0')
 }
 
-// ===== ミリ秒を「時:分」に変える =====
+// ミリ秒を「時:分」に変える
 function formatHM(ms) {
   const totalMinutes = Math.floor(ms / MINUTE)
   const hours = Math.floor(totalMinutes / 60)
@@ -49,7 +49,7 @@ function formatHM(ms) {
   return `${hours}:${pad(minutes)}`
 }
 
-// ===== ミリ秒を「時:分:秒」に変える =====
+//ミリ秒を「時:分:秒」に変える
 function formatHMS(ms) {
   const totalSeconds = Math.floor(ms / SECOND)
   const hours = Math.floor(totalSeconds / 3600)
@@ -58,7 +58,7 @@ function formatHMS(ms) {
   return `${hours}:${pad(minutes)}:${pad(seconds)}`
 }
 
-// ===== 左右のバーの長さ（%）を計算する =====
+//左右のバーの長さ（%）を計算する
 function calcBarPercents(myMs, partnerMs, goal) {
   const totalMs = myMs + partnerMs
   if (totalMs >= goal) {
@@ -71,8 +71,8 @@ function calcBarPercents(myMs, partnerMs, goal) {
   }
 }
 
-// ===== 1人分の勉強スペース（状態の文字と画像）を描く =====
-// ★ achieved が true なら、画像だけ「達成」に切り替える（状態の文字はそのまま）
+// 1人分の勉強スペース（状態の文字と画像）を描く
+// achieved が true なら、画像だけ「達成」に切り替える（状態の文字はそのまま）
 function renderSpace(who, status, achieved) {
   document.getElementById(`space-${who}`).dataset.status = status
   document.getElementById(`status-${who}`).textContent = STATUS_LABELS[status]
@@ -88,14 +88,14 @@ function renderSpace(who, status, achieved) {
   }
 }
 
-// ===== 今の状態で押せるボタンだけを有効にする（通信中はすべて押せない） =====
+//今の状態で押せるボタンだけを有効にする（通信中はすべて押せない）
 function renderButtons(status) {
   document.getElementById('btn-start').disabled = timerBusy || status !== 'idle'
   document.getElementById('btn-pause').disabled = timerBusy || status !== 'studying'
   document.getElementById('btn-resume').disabled = timerBusy || status !== 'break'
 }
 
-// ★ ===== 結果画面を表示する（達成・未達成で共通） =====
+//結果画面を表示する（達成・未達成で共通）
 // rows: [['ラベル', '値'], ...] の形で、表示する数字の一覧
 function showResult({ type, title, message, rows }) {
   const img = document.getElementById('result-img')
@@ -119,7 +119,7 @@ function showResult({ type, title, message, rows }) {
   document.getElementById('result-overlay').hidden = false
 }
 
-// ★ ===== 達成したら、お祝い画面を出す（1日1回だけ） =====
+//達成したら、お祝い画面を出す（1日1回だけ）
 function maybeCelebrate(myStudyMs, partnerStudyMs, totalMs, goal) {
   const key = `duo-pomodoro-celebrated-${currentRoomCode}-${todayKey}`
   if (localStorage.getItem(key)) return // 今日はもう表示した
@@ -145,7 +145,7 @@ function render() {
   const now = Date.now()
   const dayStart = getJstDayStart(now)
 
-  // ★ 開いたまま日付が変わったら、新しい日のデータで同期し直し、前日の結果を確認する
+  //開いたまま日付が変わったら、新しい日のデータで同期し直し、前日の結果を確認する
   if (currentRoomCode && todayKey && getJstDateKey(now) !== todayKey) {
     const code = currentRoomCode
     stopSync()
@@ -165,7 +165,7 @@ function render() {
   const myStatus = getDisplayStatus(myMember, myStudyMs)
   const partnerStatus = getDisplayStatus(partnerMember, partnerStudyMs)
 
-  // ★ 達成判定：2人の合計で判定する
+  //達成判定：2人の合計で判定する
   const goal = getGoalMs()
   const totalMs = myStudyMs + partnerStudyMs
   const remainingMs = Math.max(goal - totalMs, 0)
@@ -175,23 +175,23 @@ function render() {
   document.getElementById('goal-text').textContent = formatHM(goal)
   document.getElementById('total-text').textContent = formatHM(totalMs)
   document.getElementById('remaining-text').textContent = formatHM(remainingMs)
-  document.getElementById('achieved-badge').hidden = !achieved // ★
-  renderGoalEdit() // ★ 目標変更の表示
+  document.getElementById('achieved-badge').hidden = !achieved // 
+  renderGoalEdit() //目標変更の表示
 
   // 進捗バー
   const percents = calcBarPercents(myStudyMs, partnerStudyMs, goal)
   document.getElementById('progress-me').style.width = `${percents.me}%`
   document.getElementById('progress-partner').style.width = `${percents.partner}%`
-  document.querySelector('.progress-bar').classList.toggle('achieved', achieved) // ★
+  document.querySelector('.progress-bar').classList.toggle('achieved', achieved) //
 
   // 各自の時間・状態・画像
   document.getElementById('time-me').textContent = formatHMS(myStudyMs)
   document.getElementById('time-partner').textContent = formatHMS(partnerStudyMs)
-  renderSpace('me', myStatus, achieved)           // ★
-  renderSpace('partner', partnerStatus, achieved) // ★
+  renderSpace('me', myStatus, achieved)           // 
+  renderSpace('partner', partnerStatus, achieved) // 
   renderButtons(myStatus)
 
-  // ★ 2人そろっているルームで達成したら、お祝い画面
+  //2人そろっているルームで達成したら、お祝い画面
   if (achieved && partnerId && todayKey) {
     maybeCelebrate(myStudyMs, partnerStudyMs, totalMs, goal)
   }
@@ -204,7 +204,7 @@ for (const who of ['me', 'partner']) {
   img.addEventListener('error', () => img.parentElement.classList.remove('has-image'))
 }
 
-// ★ ロケット画像：読み込めたら画像、無ければ絵文字のまま
+//ロケット画像：読み込めたら画像、無ければ絵文字のまま
 for (const who of ['me', 'partner']) {
   const img = document.getElementById(`rocket-img-${who}`)
   img.addEventListener('load', () => img.parentElement.classList.add('has-image'))
@@ -212,17 +212,17 @@ for (const who of ['me', 'partner']) {
   img.src = ROCKET_IMAGES[who]
 }
 
-// ★ 結果画面の画像が無いときは、画像の枠ごと隠す
+//結果画面の画像が無いときは、画像の枠ごと隠す
 document.getElementById('result-img').addEventListener('error', (event) => {
   event.target.hidden = true
 })
 
-// ★ 結果画面の「閉じる」ボタン
+//結果画面の「閉じる」ボタン
 document.getElementById('btn-result-close').addEventListener('click', () => {
   document.getElementById('result-overlay').hidden = true
 })
 
-// ★ ===== 目標変更の表示を更新する =====
+//目標変更の表示を更新する
 function renderGoalEdit() {
   // 今日の目標が固定済みで、ルームの目標と違うなら「明日からの目標」を表示（2人とも見える）
   const nextGoalText =
@@ -243,7 +243,7 @@ function renderGoalEdit() {
       : '今日はすでに勉強が始まっているため、明日から反映されます'
 }
 
-// ★ 「目標を変更」ボタン：今のルームの目標を入力欄に入れてフォームを開く
+// 「目標を変更」ボタン：今のルームの目標を入力欄に入れてフォームを開く
 document.getElementById('btn-goal-open').addEventListener('click', () => {
   document.getElementById('edit-goal-hours').value = Math.floor(roomGoalMs / HOUR)
   document.getElementById('edit-goal-minutes').value = Math.floor((roomGoalMs % HOUR) / MINUTE)
@@ -251,14 +251,14 @@ document.getElementById('btn-goal-open').addEventListener('click', () => {
   document.getElementById('btn-goal-open').disabled = true
 })
 
-// ★ 「やめる」ボタン
+//「やめる」ボタン
 function closeGoalForm() {
   document.getElementById('goal-form').hidden = true
   document.getElementById('btn-goal-open').disabled = false
 }
 document.getElementById('btn-goal-cancel').addEventListener('click', closeGoalForm)
 
-// ★ 「保存」ボタン
+// 「保存」ボタン
 document.getElementById('btn-goal-save').addEventListener('click', async () => {
   const hours = Number(document.getElementById('edit-goal-hours').value)
   const minutes = Number(document.getElementById('edit-goal-minutes').value)
@@ -314,8 +314,8 @@ function stopSync() {
   syncingCode = null
   members = {}
   sessions = []
-  todayGoalMs = null // ★
-  todayKey = null    // ★
+  todayGoalMs = null // 
+  todayKey = null    // 
 }
 
 function startSync(code) {
@@ -329,7 +329,7 @@ function startSync(code) {
   stopSyncFns.push(
     watchMembers(code, (newMembers) => {
       members = newMembers
-      maybeLockTodayGoal() // ★
+      maybeLockTodayGoal() // 
       render()
     })
   )
@@ -342,13 +342,13 @@ function startSync(code) {
   stopSyncFns.push(
     watchDay(code, todayKey, (day) => {
       todayGoalMs = day ? day.goalMs : null
-      maybeLockTodayGoal() // ★
+      maybeLockTodayGoal() // 
       render()
     })
   )
 }
 
-// ★ 誰かが勉強中なのに今日の目標が未固定なら、固定する（0時をまたいだ場合など）
+//誰かが勉強中なのに今日の目標が未固定なら、固定する（0時をまたいだ場合など）
 function maybeLockTodayGoal() {
   if (!currentRoomCode || !todayKey || todayGoalMs !== null) return
   if (lockRequestedFor === todayKey) return // すでに頼んである
@@ -362,13 +362,13 @@ function maybeLockTodayGoal() {
   )
 }
 
-// ★ "2026-10-17" → "10月17日"
+//"2026-10-17" → "10月17日"
 function formatDateLabel(dateKey) {
   const [, month, day] = dateKey.split('-')
   return `${Number(month)}月${Number(day)}日`
 }
 
-// ★ ある日の結果を確認して、未達成なら結果画面を出す
+// ある日の結果を確認して、未達成なら結果画面を出す
 // force が true なら「表示済み」の記録を無視する（テスト用）
 async function checkDayResult(code, dayStart, force = false) {
   const dateKey = getJstDateKey(dayStart)
@@ -407,7 +407,7 @@ async function checkDayResult(code, dayStart, force = false) {
   })
 }
 
-// ★ 前日の結果の確認を、ルームと日付の組み合わせごとに1回だけ行う
+//前日の結果の確認を、ルームと日付の組み合わせごとに1回だけ行う
 function checkYesterdayOnce() {
   if (!currentRoomCode || !partnerId || !todayKey) return
   const key = `${currentRoomCode}-${todayKey}`
@@ -457,22 +457,23 @@ function enterRoom(code) {
       }
 
       currentRoomCode = code
-      roomGoalMs = room.goalMs // ★
+      roomGoalMs = room.goalMs // 
       roomCreatedAt = room.createdAt ? room.createdAt.toMillis() : Date.now()
       isOwner = room.ownerUid === currentUser.uid
       startSync(code)
-      myName = room.memberNames[currentUser.uid] // ★
+      myName = room.memberNames[currentUser.uid] // 
       document.getElementById('name-me').textContent = myName
 
       partnerId = room.memberIds.find((id) => id !== currentUser.uid) ?? null
       if (!partnerId) {
         document.getElementById('waiting-code').textContent = code
-        document.getElementById('invite-url').value = `${location.origin}/?room=${code}`
+        document.getElementById('invite-url').value = `${location.origin}/?room=${code}&openExternalBrowser=1`
+        
         showScreen('waiting')
         return
       }
 
-      partnerName = room.memberNames[partnerId] // ★
+      partnerName = room.memberNames[partnerId] // 
       document.getElementById('name-partner').textContent = partnerName
       document.getElementById('room-code-main').textContent = code
       showScreen('main')
@@ -556,7 +557,7 @@ document.getElementById('btn-copy').addEventListener('click', async () => {
   document.getElementById('btn-copy').textContent = 'コピーしました！'
 })
 
-// ★ 「この端末でルームを離れる」ボタン
+//「この端末でルームを離れる」ボタン
 document.getElementById('btn-leave').addEventListener('click', async () => {
   const code = currentRoomCode
   const ok = confirm(
@@ -584,6 +585,14 @@ document.getElementById('btn-leave').addEventListener('click', async () => {
 })
 
 async function start() {
+  //LINEの中のブラウザで開かれたら、Safariなどの普段のブラウザで開き直す
+  //    （LINEの中で参加すると、後でSafariから同じルームに戻れなくなるため）
+  const params = new URLSearchParams(location.search)
+  if (/ Line\//i.test(navigator.userAgent) && params.get('openExternalBrowser') !== '1') {
+    params.set('openExternalBrowser', '1')
+    location.replace(`${location.pathname}?${params}`)
+    return
+  }
   const codeFromUrl = new URLSearchParams(location.search).get('room')
   if (codeFromUrl) {
     document.getElementById('input-code').value = codeFromUrl.toUpperCase()
@@ -606,7 +615,7 @@ async function start() {
   }
 }
 
-// ★ 開発中だけ使えるテスト用の命令（公開版では無効になる）
+//開発中だけ使えるテスト用の命令（公開版では無効になる）
 // コンソールで debugCheckToday() と打つと、「今日がもう終わった」とみなして結果を判定する
 if (import.meta.env.DEV) {
   window.debugCheckToday = () => checkDayResult(currentRoomCode, getJstDayStart(Date.now()), true)
