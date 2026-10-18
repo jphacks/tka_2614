@@ -325,7 +325,6 @@ document.getElementById('btn-resume').addEventListener('click', () => runTimerAc
 
 // 1秒ごとに表示を更新する
 setInterval(render, SECOND)
-document.addEventListener('visibilitychange', render)
 // アプリ（タブ）に戻ってきたとき：表示を更新し、5秒以上離れていたら同期をつなぎ直す
 let hiddenAt = null
 document.addEventListener('visibilitychange', () => {
@@ -741,7 +740,7 @@ async function start() {
     // 初めて、または別のルームに招待された → まず紹介画面を出す
       showScreen('intro')
     if (invitedCode) {
-      // 入口画面に出す案内を先に準備して、紹介画面のボタンの文字も変える
+      // 入口画面に出す案内を先に準備しておく
       showMessage(`ルーム ${invitedCode} に招待されています。名前を入れて「参加する」を押してください`)
     }
   }
