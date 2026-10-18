@@ -212,6 +212,13 @@ for (const who of ['me', 'partner']) {
   img.src = ROCKET_IMAGES[who]
 }
 
+// ★ 紹介画面の画像（config.js の達成の画像を使う。無ければ隠す）
+const introImg = document.getElementById('intro-img')
+introImg.addEventListener('error', () => {
+  introImg.hidden = true
+})
+introImg.src = IMAGES.achieved
+
 //結果画面の画像が無いときは、画像の枠ごと隠す
 document.getElementById('result-img').addEventListener('error', (event) => {
   event.target.hidden = true
@@ -420,11 +427,9 @@ function checkYesterdayOnce() {
   )
 }
 
-// =============================================
 // ルームと画面の切り替え
-// =============================================
 function showScreen(name) {
-  for (const id of ['screen-loading', 'screen-entry', 'screen-waiting', 'screen-main']) {
+  for (const id of ['screen-loading', 'screen-intro', 'screen-entry', 'screen-waiting', 'screen-main']) {
     document.getElementById(id).hidden = id !== `screen-${name}`
   }
 }
@@ -557,6 +562,13 @@ document.getElementById('btn-copy').addEventListener('click', async () => {
   document.getElementById('btn-copy').textContent = 'コピーしました！'
 })
 
+//紹介画面の「はじめる」ボタン → 入口画面へ
+document.getElementById('btn-intro-start').addEventListener('click', () => {
+  showScreen('entry')
+  window.scrollTo(0, 0) // 画面の一番上から表示する
+})
+
+
 //「この端末でルームを離れる」ボタン
 document.getElementById('btn-leave').addEventListener('click', async () => {
   const code = currentRoomCode
@@ -593,11 +605,15 @@ async function start() {
     location.replace(`${location.pathname}?${params}`)
     return
   }
-  const codeFromUrl = new URLSearchParams(location.search).get('room')
-  if (codeFromUrl) {
-    document.getElementById('input-code').value = codeFromUrl.toUpperCase()
+
+  //招待URL（?room=コード）から開いたら、コード欄に入れておく
+  const codeFromUrl = params.get('room')
+  const invitedCode = codeFromUrl ? codeFromUrl.toUpperCase() : null
+  if (invitedCode) {
+    document.getElementById('input-code').value = invitedCode
   }
 
+  //匿名ログイン
   try {
     currentUser = await ensureSignedIn()
   } catch (error) {
@@ -607,14 +623,22 @@ async function start() {
     return
   }
 
+  //どの画面から始めるかを決める
   const savedCode = localStorage.getItem(ROOM_KEY)
-  if (savedCode) {
+  if (savedCode && (!invitedCode || invitedCode === savedCode)) {
+    // 招待URLが無い、または覚えているルームと同じ → そのルームに戻る
     enterRoom(savedCode)
   } else {
-    showScreen('entry')
+    // 初めて、または別のルームに招待された → まず紹介画面を出す
+    showScreen('intro')
+    if (invitedCode) {
+      // 入口画面に出す案内を先に準備して、紹介画面のボタンの文字も変える
+      showMessage(`ルーム ${invitedCode} に招待されています。名前を入れて「参加する」を押してください`)
+      introStartLabel = '招待されたルームに参加する'
+      document.getElementById('btn-intro-start').textContent = introStartLabel
+    }
   }
 }
-
 //開発中だけ使えるテスト用の命令（公開版では無効になる）
 // コンソールで debugCheckToday() と打つと、「今日がもう終わった」とみなして結果を判定する
 if (import.meta.env.DEV) {

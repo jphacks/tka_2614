@@ -15,6 +15,50 @@
       <!--読み込み中-->
       <p id="screen-loading" class="loading">読み込み中…</p>
 
+      <!-- ===== 紹介画面 ===== -->
+      <section id="screen-intro" class="screen-intro" hidden>
+        <div class="intro-hero">
+          <img id="intro-img" class="intro-img" alt="" />
+          <h1 class="title">協力勉強タイマー</h1>
+          <p class="intro-catch">ふたりの勉強時間で、ロケットを宇宙で出会わせよう</p>
+        </div>
+
+        <div class="card">
+          <p class="intro-text">
+            2人の勉強時間を合わせて、1日の目標を目指す<strong>協力型</strong>の勉強タイマーです。
+            自分は地球から、相手は月から。勉強するほどロケットが進み、2人の合計が目標に届くと、宇宙のまんなかで合流します。
+            離れていても、相手が今「勉強中」か「休憩中」かが、リアルタイムで分かります。
+          </p>
+        </div>
+
+        <ol class="intro-steps">
+          <li class="card">
+            <span class="step-num">1</span>
+            <h2>ルームを作る</h2>
+            <p class="hint">名前と、2人で目指す1日の目標時間を決めます</p>
+          </li>
+          <li class="card">
+            <span class="step-num">2</span>
+            <h2>相手を招待する</h2>
+            <p class="hint">6文字のコードか、招待URLを相手に送ります</p>
+          </li>
+          <li class="card">
+            <span class="step-num">3</span>
+            <h2>一緒に勉強する</h2>
+            <p class="hint">それぞれの端末で「勉強開始」。休憩はいつでも自由です</p>
+          </li>
+        </ol>
+
+        <ul class="intro-points">
+          <li>登録不要</li>
+          <li>休憩は自由なタイミングで</li>
+          <li>1日の区切りは日本時間の0時</li>
+        </ul>
+
+        <button id="btn-intro-start" class="intro-start">はじめる</button>
+        <p class="hint intro-note">※ SafariやChromeで開いてください。最初に開いたブラウザで使い続けると、同じルームに戻れます</p>
+      </section>
+
       <!--入口画面：ルームを作る／参加する-->
       <section id="screen-entry" class="screen-entry" hidden>
         <h1 class="title">協力勉強タイマー</h1>

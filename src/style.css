@@ -726,3 +726,142 @@ input:focus {
 #btn-leave {
   opacity: 0.75; 
 }
+
+
+/* ===== 紹介画面 ===== */
+.screen-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-bottom: 32px;
+}
+
+.intro-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.intro-img {
+  width: 100%;
+  max-width: 240px;
+  max-height: 200px;
+  object-fit: contain;
+  margin-top: 16px;
+}
+
+.intro-hero .title {
+  margin: 8px 0 4px;
+}
+
+.intro-catch {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--me);
+}
+
+.intro-text {
+  margin: 0;
+  line-height: 1.9;
+}
+
+.intro-text strong {
+  color: var(--partner);
+}
+
+/* 使い方の3ステップ */
+.intro-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.intro-steps .card {
+  position: relative;
+  align-items: center;
+  padding-top: 30px;
+  text-align: center;
+}
+
+.intro-steps li:nth-child(2) {
+  border-radius: 24px 32px 22px 30px; /* 手描き風に、丸みを少しずつ変える */
+}
+
+.intro-steps h2 {
+  font-size: 1.05rem;
+}
+
+/* ステップの番号：傾いた丸いステッカー */
+.step-num {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--partner);
+  color: var(--ink);
+  font-weight: 900;
+  box-shadow: 2px 3px 0 var(--shadow);
+  transform: translateX(-50%) rotate(-6deg);
+}
+
+.intro-steps li:nth-child(2) .step-num {
+  background: var(--me);
+  transform: translateX(-50%) rotate(5deg);
+}
+
+.intro-steps li:nth-child(3) .step-num {
+  background: var(--rocket);
+  color: var(--paper);
+}
+
+/* 特徴：点線で囲んだ小さなタグ */
+.intro-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.intro-points li {
+  padding: 4px 12px;
+  border: 2px dashed rgba(253, 246, 227, 0.35);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--sub);
+}
+
+/* 「はじめる」ボタン*/
+.intro-start {
+  align-self: center;
+  min-width: 240px;
+  padding: 14px 32px;
+  background: var(--rocket);
+  color: var(--paper);
+  font-size: 1.2rem;
+}
+
+.intro-note {
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .intro-steps {
+    grid-template-columns: 1fr; /* スマホでは縦に並べる */
+    gap: 24px;
+  }
+}
