@@ -30,6 +30,10 @@ let roomCreatedAt = 0                // ルームが作られた時刻
 let lockRequestedFor = null          // 目標の固定を頼んだ日付（同じ処理の重複を防ぐ）
 let resultCheckedFor = null          // 前日の結果を確認した「ルーム-日付」（重複を防ぐ）
 let isOwner = false                  // 自分がルームの作成者かどうか
+let currentScreen = 'loading'        // 今表示している画面
+let introReturnTo = null             // 「？」から紹介を開いたときの戻り先
+let introStartLabel = 'はじめる'      // 紹介画面のボタンの文字
+
 
 //今日の目標：固定されていればそれを、まだならルームの目標を使う
 function getGoalMs() {
@@ -428,10 +432,23 @@ function checkYesterdayOnce() {
 }
 
 // ルームと画面の切り替え
-function showScreen(name) {
+ function showScreen(name) {
+  currentScreen = name
   for (const id of ['screen-loading', 'screen-intro', 'screen-entry', 'screen-waiting', 'screen-main']) {
     document.getElementById(id).hidden = id !== `screen-${name}`
   }
+  // 「？」ボタンは、読み込み中と紹介画面では隠す
+  document.getElementById('btn-info').hidden = name === 'loading' || name === 'intro'
+}
+
+// ルームの画面（待機・メイン）を出す
+// 「？」から紹介を読んでいる途中なら、画面は切り替えずに、戻り先だけ更新する
+function showRoomScreen(name) {
+  if (currentScreen === 'intro' && introReturnTo) {
+    introReturnTo = name
+    return
+  }
+  showScreen(name)
 }
 
 function showMessage(text) {
@@ -474,14 +491,14 @@ function enterRoom(code) {
         document.getElementById('waiting-code').textContent = code
         document.getElementById('invite-url').value = `${location.origin}/?room=${code}&openExternalBrowser=1`
         
-        showScreen('waiting')
+        showRoomScreen('waiting')
         return
       }
 
       partnerName = room.memberNames[partnerId] // 
       document.getElementById('name-partner').textContent = partnerName
       document.getElementById('room-code-main').textContent = code
-      showScreen('main')
+      showRoomScreen('main')
       render()
       checkYesterdayOnce() //  前日が未達成なら結果画面を出す
     },
@@ -562,10 +579,23 @@ document.getElementById('btn-copy').addEventListener('click', async () => {
   document.getElementById('btn-copy').textContent = 'コピーしました！'
 })
 
-//紹介画面の「はじめる」ボタン → 入口画面へ
+//「？」ボタン → 紹介画面を開く（どの画面から開いたかを覚えておく）
+document.getElementById('btn-info').addEventListener('click', () => {
+  introReturnTo = currentScreen
+  document.getElementById('btn-intro-start').textContent = '戻る'
+  showScreen('intro')
+  window.scrollTo(0, 0)
+})
+
+//紹介画面のボタン
+//「？」から開いたとき → 元の画面に戻る
+//最初に開いたとき→ 入口画面へ
 document.getElementById('btn-intro-start').addEventListener('click', () => {
-  showScreen('entry')
-  window.scrollTo(0, 0) // 画面の一番上から表示する
+  const next = introReturnTo ?? 'entry'
+  introReturnTo = null
+  document.getElementById('btn-intro-start').textContent = introStartLabel // 文字を元に戻す
+  showScreen(next)
+  window.scrollTo(0, 0)
 })
 
 

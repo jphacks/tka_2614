@@ -12,10 +12,14 @@
   </head>
   <body>
     <main class="app">
+
+      <!--どの画面からでも紹介を開けるボタン（右上に固定）-->
+      <button id="btn-info" class="info-button" title="アプリの紹介" aria-label="アプリの紹介を見る" hidden>?</button>
+
       <!--読み込み中-->
       <p id="screen-loading" class="loading">読み込み中…</p>
 
-      <!-- ===== 紹介画面 ===== -->
+      <!--紹介画面-->
       <section id="screen-intro" class="screen-intro" hidden>
         <div class="intro-hero">
           <img id="intro-img" class="intro-img" alt="" />

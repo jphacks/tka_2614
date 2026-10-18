@@ -865,3 +865,21 @@ input:focus {
     gap: 24px;
   }
 }
+
+
+/* 「？」ボタン（右上に固定）*/
+.info-button {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 50; /* 画面より手前、結果画面（100）より奥 */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 3px solid var(--line);
+  border-radius: 50%;
+  background: var(--night-2);
+  color: var(--paper);
+  font-size: 1.2rem;
+  box-shadow: 0 3px 0 var(--shadow);
+}
