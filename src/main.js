@@ -529,6 +529,8 @@ function backToEntry(message) {
 
 function enterRoom(code) {
   localStorage.setItem(ROOM_KEY, code)
+  // アドレス欄の ?room=○○ を消す（ページの再読み込みはしない）
+  history.replaceState(null, '', location.pathname)
   if (stopWatchingRoom) stopWatchingRoom()
 
   stopWatchingRoom = watchRoom(
