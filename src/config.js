@@ -25,6 +25,6 @@ export const MESSAGES = {
 // ロケット（進捗バーの先頭）
 // 右向きの画像。相手側は左右反転
 export const ROCKET_IMAGES = {
-  me: '/images/rocket.gif',
+  me: '/images/rocket.png',
   partner: '/images/rocket.png',
 }
