@@ -743,8 +743,6 @@ async function start() {
     if (invitedCode) {
       // 入口画面に出す案内を先に準備して、紹介画面のボタンの文字も変える
       showMessage(`ルーム ${invitedCode} に招待されています。名前を入れて「参加する」を押してください`)
-      introStartLabel = '招待されたルームに参加する'
-      document.getElementById('btn-intro-start').textContent = introStartLabel
     }
   }
 }
