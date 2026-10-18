@@ -2,7 +2,7 @@
 
 **ふたりの勉強時間で、ロケットを宇宙で出会わせよう。**
 
-**アプリ：https://duo-pomodoro.web.app/**　（PC・スマートフォンのブラウザで動きます。登録不要）
+**アプリ：[https://duo-pomodoro.web.app/](https://duo-pomodoro.web.app/)**（PC・スマートフォンのブラウザで動きます。登録不要）
 
 ## 製品概要
 
