@@ -292,13 +292,23 @@ document.getElementById('btn-goal-save').addEventListener('click', async () => {
   }
 })
 
-// ===== タイマーのボタン操作（Firestoreに書き込む） =====
+//タイマーのボタン操作（Firestoreに書き込む）
 async function runTimerAction(action) {
   if (timerBusy || !currentRoomCode) return
   timerBusy = true
   render()
-  try {
-    await action(currentRoomCode, currentUser.uid)
+    try {
+    const result = await action(currentRoomCode, currentUser.uid)
+
+    // 書き込みが成功したら、サーバーからの知らせを待たずに、自分の画面をすぐ更新する
+    if (result) {
+      members = { ...members, [currentUser.uid]: result.member }
+      // 記録した区間も、まだ一覧に無ければ加える（同じ区間を2回足さないように確認）
+      const s = result.session
+      if (s && !sessions.some((x) => x.uid === s.uid && x.start === s.start)) {
+        sessions = [...sessions, s]
+      }
+    }
   } catch (error) {
     console.error(error)
     alert('操作に失敗しました。通信状態を確認して、もう一度押してください')
@@ -315,10 +325,29 @@ document.getElementById('btn-resume').addEventListener('click', () => runTimerAc
 // 1秒ごとに表示を更新する
 setInterval(render, SECOND)
 document.addEventListener('visibilitychange', render)
+// アプリ（タブ）に戻ってきたとき：表示を更新し、5秒以上離れていたら同期をつなぎ直す
+let hiddenAt = null
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    hiddenAt = Date.now() // 裏に回った時刻を覚えておく
+    return
+  }
+  if (hiddenAt && Date.now() - hiddenAt > 5 * SECOND) {
+    restartSync()
+  }
+  hiddenAt = null
+  render()
+})
 
-// =============================================
+// 通信が切れて、また戻ったとき（電波が悪い場所など）も、つなぎ直す
+window.addEventListener('online', restartSync)
+
+// Safariで「戻る」ボタンなどからページに戻ったときも、つなぎ直す
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) restartSync()
+})
+
 // 2人の状態の同期
-// =============================================
 function stopSync() {
   for (const stop of stopSyncFns) stop()
   stopSyncFns = []
@@ -357,6 +386,22 @@ function startSync(code) {
       render()
     })
   )
+}
+
+// 同期をつなぎ直す（スマホでアプリに戻ってきたときなど）
+function restartSync() {
+  if (!currentRoomCode) return
+  const code = currentRoomCode
+
+  // つなぎ直しの間に表示が0に戻らないよう、手元のデータを残しておく
+  const keep = { members, sessions, todayGoalMs }
+  stopSync()
+  startSync(code)
+  members = keep.members
+  sessions = keep.sessions
+  todayGoalMs = keep.todayGoalMs
+  render()
+  // この後、サーバーから最新の状態が届くと、見張りが自動で上書きする
 }
 
 //誰かが勉強中なのに今日の目標が未固定なら、固定する（0時をまたいだ場合など）

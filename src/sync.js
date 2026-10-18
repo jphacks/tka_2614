@@ -4,20 +4,23 @@ import { db } from './firebase.js'
 import { getJstDateKey } from './timer.js'
 
 // 勉強開始・再開
+// 成功したら、自分の新しい状態を返す（画面をすぐ更新するため）。何もしなかったら null
 export async function startStudying(code, uid) {
   const now = Date.now()
   const roomRef = doc(db, 'rooms', code)
   const memberRef = doc(db, 'rooms', code, 'members', uid)
   const dayRef = doc(db, 'rooms', code, 'days', getJstDateKey(now))
 
-  await runTransaction(db, async (tx) => {
-    //先に必要なデータをすべて読む
-    const memberSnap = await tx.get(memberRef)
-    const daySnap = await tx.get(dayRef)
-    const roomSnap = await tx.get(roomRef)
+  return runTransaction(db, async (tx) => {
+    //必要な3つのデータを「同時に」読む（順番に読むより速い）
+    const [memberSnap, daySnap, roomSnap] = await Promise.all([
+      tx.get(memberRef),
+      tx.get(dayRef),
+      tx.get(roomRef),
+    ])
 
     //すでに勉強中なら何もしない（二重起動の防止）
-    if (memberSnap.exists() && memberSnap.data().status === 'studying') return
+    if (memberSnap.exists() && memberSnap.data().status === 'studying') return null
 
     //今日最初の勉強なら、今日の目標を固定する（目標のロック）
     if (!daySnap.exists()) {
@@ -25,29 +28,34 @@ export async function startStudying(code, uid) {
     }
 
     //自分の状態を「勉強中」にする
-    tx.set(memberRef, { status: 'studying', startedAt: now })
+    const member = { status: 'studying', startedAt: now }
+    tx.set(memberRef, member)
+    return { member }
   })
 }
 
 // 休憩（勉強を止める）
+// 成功したら、自分の新しい状態と記録した区間を返す。何もしなかったら null
 export async function stopStudying(code, uid) {
   const memberRef = doc(db, 'rooms', code, 'members', uid)
 
-  await runTransaction(db, async (tx) => {
+  return runTransaction(db, async (tx) => {
     const snap = await tx.get(memberRef)
 
     // 勉強中でなければ何もしない（休憩中の時間加算・二重記録の防止）
-    if (!snap.exists() || snap.data().status !== 'studying') return
+    if (!snap.exists() || snap.data().status !== 'studying') return null
 
     const startedAt = snap.data().startedAt
     const end = Math.max(Date.now(), startedAt + 1) // 終了は必ず開始より後
 
     // 勉強した区間を1件記録（名前は「ID_開始時刻」→ 同じ区間は二度と記録できない）
-    const sessionRef = doc(db, 'rooms', code, 'sessions', `${uid}_${startedAt}`)
-    tx.set(sessionRef, { uid, start: startedAt, end })
+    const session = { uid, start: startedAt, end }
+    tx.set(doc(db, 'rooms', code, 'sessions', `${uid}_${startedAt}`), session)
 
     // 自分の状態を「休憩中」にする
-    tx.set(memberRef, { status: 'break', startedAt: null })
+    const member = { status: 'break', startedAt: null }
+    tx.set(memberRef, member)
+    return { member, session }
   })
 }
 
