@@ -883,3 +883,19 @@ input:focus {
   font-size: 1.2rem;
   box-shadow: 0 3px 0 var(--shadow);
 }
+
+
+/* 前に入っていたルーム*/
+.last-room {
+  align-items: center;
+  text-align: center;
+  border-style: dashed;
+}
+
+.last-room-code {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  color: var(--partner);
+}

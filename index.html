@@ -5,7 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>協力勉強タイマー</title>
-    <!-- 丸くてやわらかい日本語フォント（Google Fonts） -->
+
+    <!-- 丸くてやわらかい日本語フォント（Google Fonts）-->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
@@ -66,6 +67,13 @@
       <!--入口画面：ルームを作る／参加する-->
       <section id="screen-entry" class="screen-entry" hidden>
         <h1 class="title">協力勉強タイマー</h1>
+
+        <!-- 前に入っていたルーム（覚えているときだけ表示） -->
+        <div id="last-room" class="card last-room" hidden>
+          <p class="hint">前に入っていたルーム</p>
+          <p id="last-room-code" class="last-room-code"></p>
+          <button id="btn-last-room">このルームに戻る</button>
+        </div>
 
         <div class="card">
           <label class="field">

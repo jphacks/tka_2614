@@ -12,6 +12,7 @@ const HOUR = 60 * MINUTE
 
 //アプリの状態（すべてここにまとめる）
 const ROOM_KEY = 'duo-pomodoro-room' // 参加中のルームコードを覚えておく場所
+const LAST_ROOM_KEY = 'duo-pomodoro-last-room' // 前に入っていたルーム（離れた後も残す）
 let currentUser = null               // ログイン中のユーザー（この端末）
 let currentRoomCode = null           // 今いるルームのコード
 let partnerId = null                 // 相手のID
@@ -484,6 +485,21 @@ function checkYesterdayOnce() {
   }
   // 「？」ボタンは、読み込み中と紹介画面では隠す
   document.getElementById('btn-info').hidden = name === 'loading' || name === 'intro'
+  // 入口画面を出すときは、「前に入っていたルーム」の表示を更新する
+  if (name === 'entry') {
+    renderLastRoom()
+  } else {
+    document.getElementById('last-room').hidden = true
+  }
+}
+
+//前に入っていたルーム」を、覚えているときだけ表示する
+function renderLastRoom() {
+  const code = localStorage.getItem(LAST_ROOM_KEY)
+  document.getElementById('last-room').hidden = !code
+  if (code) {
+    document.getElementById('last-room-code').textContent = code
+  }
 }
 
 // ルームの画面（待機・メイン）を出す
@@ -518,12 +534,17 @@ function enterRoom(code) {
   stopWatchingRoom = watchRoom(
     code,
     (room) => {
-      if (!room || !room.memberIds.includes(currentUser.uid)) {
+            if (!room || !room.memberIds.includes(currentUser.uid)) {
+        // もう戻れないルームなので、「前に入っていたルーム」からも消す
+        if (localStorage.getItem(LAST_ROOM_KEY) === code) {
+          localStorage.removeItem(LAST_ROOM_KEY)
+        }
         backToEntry('前回のルームに戻れませんでした')
         return
       }
 
       currentRoomCode = code
+      localStorage.setItem(LAST_ROOM_KEY, code) // 前に入っていたルームとして覚える
       roomGoalMs = room.goalMs // 
       roomCreatedAt = room.createdAt ? room.createdAt.toMillis() : Date.now()
       isOwner = room.ownerUid === currentUser.uid
@@ -624,6 +645,14 @@ document.getElementById('btn-copy').addEventListener('click', async () => {
   document.getElementById('btn-copy').textContent = 'コピーしました！'
 })
 
+//「このルームに戻る」ボタン（すでにメンバーなので、名前の入力はいらない）
+document.getElementById('btn-last-room').addEventListener('click', () => {
+  const code = localStorage.getItem(LAST_ROOM_KEY)
+  if (!code) return
+  showMessage('ルームに戻っています…')
+  enterRoom(code)
+})
+
 //「？」ボタン → 紹介画面を開く（どの画面から開いたかを覚えておく）
 document.getElementById('btn-info').addEventListener('click', () => {
   introReturnTo = currentScreen
@@ -703,9 +732,12 @@ async function start() {
   if (savedCode && (!invitedCode || invitedCode === savedCode)) {
     // 招待URLが無い、または覚えているルームと同じ → そのルームに戻る
     enterRoom(savedCode)
-  } else {
+    } else if (!invitedCode && localStorage.getItem(LAST_ROOM_KEY)) {
+    // ★ 前にルームに入ったことがある人 → 紹介を飛ばして入口画面へ（前のルームにすぐ戻れる）
+      showScreen('entry')
+    } else {
     // 初めて、または別のルームに招待された → まず紹介画面を出す
-    showScreen('intro')
+      showScreen('intro')
     if (invitedCode) {
       // 入口画面に出す案内を先に準備して、紹介画面のボタンの文字も変える
       showMessage(`ルーム ${invitedCode} に招待されています。名前を入れて「参加する」を押してください`)
